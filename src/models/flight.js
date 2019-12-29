@@ -5,6 +5,10 @@ const flightSchema = new mongoose.Schema({
       type: Date,
       required: true
    },
+   arrival: {
+      type: Date,
+      required: true
+   },
    origin: {
       type: String,
       required: true
@@ -21,20 +25,16 @@ const flightSchema = new mongoose.Schema({
       type: Number,
       required: true
    },
-   routes: [
-      {
-         fromAirport: {
-            type: mongoose.Schema.Types.ObjectId,
-            // required: true,
-            ref: 'Airport'
-         },
-         toAirport: {
-            type: mongoose.Schema.Types.ObjectId,
-            // required: true,
-            ref: 'Airport'
-         }
-      }
-   ],
+   fromAirport: {
+      type: mongoose.Schema.Types.ObjectId,
+      // required: true,
+      ref: 'Airport'
+   },
+   toAirport: {
+      type: mongoose.Schema.Types.ObjectId,
+      // required: true,
+      ref: 'Airport'
+   },
    meta: {
       wishList: Number,
       purchases: Number

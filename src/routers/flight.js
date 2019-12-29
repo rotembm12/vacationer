@@ -11,9 +11,12 @@ router.post('/api/flights', async (req, res) => {
       res.send(err);
    }
 });
+
 router.get('/api/flights', async (req, res) => {
    try {
-      const flights = await Flight.find();
+      const flights = await Flight.find()
+         .populate('fromAirport')
+         .populate('toAirport');
       res.send(flights);
    } catch (err) {
       res.send(err);
