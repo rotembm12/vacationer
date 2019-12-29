@@ -1,27 +1,15 @@
 import './styles.scss';
 import React, {useState, useEffect} from 'react';
-import Form from './components/Form.jsx';
-import Card from './components/Card';
+import Nav from './components/Nav.jsx';
+import Wishlist from './components/Wishlist.jsx';
+import Search from './components/Search.jsx';
+
 
 function App() {
-
-    const [store, setStore] = useState({
-        airports: [],
-        currentSearch: {}
-    })
-    const [cards, setCards] = useState([]);
-    const [flights, setFlights] = useState([]);
-    const [myFlights, setMyFlights] = useState([]);
-
-    const getRelatedAirports = (flight) => {
-        const {routes} = flight;
-        const relAirports = store.airports.filter(airport => {
-            return routes.join('').includes(airport.code);
-        });
-        console.log(relAirports);
-        addFlightToDb(flight, relAirports);
-    }
-
+    const [airports, setAirports] = useState([]);
+    const [isSearch, setIsSearch] = useState(false);
+    const [isWishlist, setIsWishlist] = useState(false);
+    const [refresh, setRefresh] = useState(1);
     //effect for fetching airports data from cloud db.
     useEffect(() => {
         (async () => {
@@ -29,71 +17,35 @@ function App() {
                 const url = 'http://localhost:3000/api/airports';
                 const response = await fetch(url);
                 const airports = await response.json();
-                setStore({...store, airports});
+                setAirports(airports);
             } catch (err) {
                 console.error(err);
             }
         })()
     },[])
 
-    useEffect(() => {
-        console.log(store, flights);
-    },[flights])
-
-    useEffect(() => {
-        console.log(myFlights);
-    },[myFlights])
-
-    const handleFavorite = (_flight) => {
-        console.log(_flight)
-    }
-    //building array that contains the card components.
-    const buildFlightsCards = (flightsArr) => {
-        const cards = flightsArr.map(flight => {
-            return <Card 
-                        key={flight.id}
-                        flight={flight}
-                        getRelatedAirports={getRelatedAirports}
-                        handleFavorite={handleFavorite}
-                    />
-        });
-        return cards;
-    }
-
-    const getFlights = async (search) => {
-        const {from, to, departure, arrival} = search;
-        const url = `
-         https://api.skypicker.com/flights?to_type=city&flyFrom=${from}&to=${to}&dateFrom=${departure}&dateTo=${arrival}&partner=rotke
-        `;
-        try {
-            const response = await fetch(url);
-            const flights = await response.json();
-            setStore({...store, currentSearch:search});
-            setFlights(flights.data);
-            setCards(buildFlightsCards(flights.data))
-        } catch(err){
-            console.log(err);
-        }
-    }
-    const getMyFlights = async () => {
-        try {
-            const response = await fetch('http://localhost:3000/api/flights');
-            const _flights = await response.json();
-            setMyFlights(_flights);
-        } catch(err) {
-            console.error(err);
-        }
-    }
-    const addFlightToDb = async (flight, airports) => {
-        const {dTimeUTC, aTimeUTC, cityFrom, cityTo, price} = flight;
+    const addFlightToFav = async (flight) => {
+        const {
+            id,
+            dTimeUTC,
+            aTimeUTC,
+            cityFrom, 
+            cityTo,
+            price, 
+            flyFrom, 
+            flyTo
+        } = flight;
+        const fromAirport = getRelatedAirports(flyFrom);
+        const toAirport = getRelatedAirports(flyTo);
         const _flight = {
             departure: new Date(dTimeUTC*1000),
             arrival: new Date(aTimeUTC*1000),
             origin: cityFrom,
             destination: cityTo,
             price,
-            fromAirport: airports[0],
-            toAirport: airports[1]
+            fromAirport,
+            toAirport,
+            apiId: id
         }
         try {
             const response = await fetch('http://localhost:3000/api/flights', {
@@ -112,15 +64,51 @@ function App() {
         } catch(err) {
             console.error(err);
         }
-        
-
     }
 
+    const removeFlightFromFav = async (flight) => {
+        try {
+            const response = await fetch(`http://localhost:3000/api/flights/${flight._id}`,{
+                method: 'DELETE'
+            });
+            const deletedFlight = await response.json();
+            console.log(deletedFlight);
+        } catch(err) {
+            console.error(err);
+        }
+    }
+
+    const getRelatedAirports = (apCode) => {
+        const airport = airports.find(airport => {
+            return airport.code === apCode;
+        });
+        return airport;
+    }
+
+    const handleViewChange = (targetId) => {
+        switch(targetId){
+            case 'search':
+                setIsSearch(true);
+                setIsWishlist(false);
+                break;
+            case 'wishlist': 
+                setIsWishlist(true);
+                setIsSearch(false);
+                break;
+        }
+    }
     return(
-        <div>
-            <Form submitAction={getFlights}/>
-            {cards.map(card => card)}
-            <button onClick={getMyFlights}>Get my flights</button>
+        <div className="container">
+            <Nav handleViewChange={handleViewChange}/>
+            {isSearch ? <Search 
+                            airports={airports} 
+                            addFlightToFav={addFlightToFav}
+                        /> :
+             ''}
+            {isWishlist ? <Wishlist
+                            removeFlightFromFav={removeFlightFromFav}
+                          /> :
+             ''}            
         </div>
     )
 }

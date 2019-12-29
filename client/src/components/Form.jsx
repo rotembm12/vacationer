@@ -1,18 +1,3 @@
-
-    // const {origin, destination, setoff, arrive} = document.forms[0].elements;
-    // // const setoffDate = formatDate(setoff.value);
-    // // const arriveDate = formatDate(arrive.value);
-    // origin.value = "tlv".toUpperCase();
-    // destination.value = "prg".toUpperCase();
-    // const setoffDate = "26/12/2019";
-    // const arriveDate = "29/12/2019"
-    // const url = `
-    // https://api.skypicker.com/flights?to_type=city&flyFrom=${origin.value}&to=${destination.value}&dateFrom=${setoffDate}&dateTo=${arriveDate}&partner=rotke
-    // `;
-    // const response = await fetch(url);
-    // const data = await response.json();
-    // const flights = data.data;
-
 import React, {useState} from 'react';
 
 const Form = ({submitAction}) => {
@@ -20,6 +5,7 @@ const Form = ({submitAction}) => {
     const [to, setTo] = useState('PRG');
     const [depart, setDepart] = useState('');
     const [arrival, setArrival] = useState('');
+
     const handleChange = (e) => {
         switch(e.target.name){
             case 'from':

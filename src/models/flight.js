@@ -35,9 +35,13 @@ const flightSchema = new mongoose.Schema({
       // required: true,
       ref: 'Airport'
    },
-   meta: {
-      wishList: Number,
-      purchases: Number
+   apiId: {
+      type: String,
+      required: true
+   },
+   wishlist: {
+      type: Number,
+      default: 1
    }
 });
 

@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Card  = ({flight,getRelatedAirports, handleFavorite}) => {
+const Card  = ({flight, getRelatedAirports, handleFavorite}) => {
     const handleClick = (e) => {
         getRelatedAirports(flight);
     }
@@ -13,11 +13,15 @@ const Card  = ({flight,getRelatedAirports, handleFavorite}) => {
          className='card'
         >
             <div className="c-item">
-                <button onClick={addToFav}>Add to fav</button>
+                {handleFavorite ? (
+                    <button onClick={addToFav}>Add to fav</button>
+                ):(
+                    <button>Remove from fav</button>
+                )}
                 <button>Order</button>
             </div>
             <div className="c-item">
-                {flight.cityFrom} -> {flight.cityTo}
+                {flight.cityFrom || flight.origin} -> {flight.cityTo || flight.destination}
             </div>
             <div className="c-item">
                 {flight.price}EUR
