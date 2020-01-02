@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Nav = ({handleViewChange}) => {
+const Nav = ({handleViewChange, handleLogout, isLogged}) => {
     const handleClick = (e) => {
         handleViewChange(e.target.id);
     }
@@ -12,7 +12,9 @@ const Nav = ({handleViewChange}) => {
             <li id='wishlist' onClick={handleClick}>
                 My wishlist
             </li>
-            <li>Login</li>
+            <li id="login" onClick={!isLogged ? handleClick : handleLogout}>
+                {!isLogged ? 'Login' : 'logout'}
+            </li>
         </nav>
     )
 }

@@ -21,15 +21,23 @@ router.post('/api/flights', async (req, res) => {
 });
 
 router.get('/api/flights', async (req, res) => {
+   const flightsIds = req.query.flights.split(',') || [];
    try {
-      const flights = await Flight.find()
-         .populate('fromAirport')
-         .populate('toAirport');
+      if(!(flightsIds.length > 0)){
+         return res.send({err: 'no flights'});
+      }
+
+      const flights = await Flight.find({
+         '_id':{ $in: flightsIds }
+      }).populate('fromAirport')
+        .populate('toAirport');
+        
       res.send(flights);
    } catch (err) {
       res.send(err);
    }
 });
+
 router.delete('/api/flights/:id', async (req, res) => {
    try {
       const deletedFlight = await Flight.findOneAndDelete({
@@ -40,4 +48,5 @@ router.delete('/api/flights/:id', async (req, res) => {
       res.status(500).send(err);
    }
 })
+
 module.exports = router;
