@@ -41,9 +41,12 @@ const flightSchema = new mongoose.Schema({
    },
    wishlist: {
       type: Number,
-      default: 1
+      default: 0
    },
-   
+   orders: {
+      type: Number,
+      default: 0
+   }
 });
 
 const Flight = mongoose.model('Flight', flightSchema);

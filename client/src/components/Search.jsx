@@ -20,39 +20,7 @@ const Search = ({airports, handleFlights}) => {
             console.log(err);
         }
     }
-
-    // const addToFav = (flight) => {
-    //     addFlightToFav(flight);
-    //     if(!localStorage.getItem('wishlistId')){
-    //         localStorage.setItem('wishlistId', 123);
-    //     } else {
-
-    //     }
-    // }
-
-    const createFlightCards = () => {
-        return flights.map(flight => {
-            return (
-                <div 
-                    className='card' 
-                    key={flight.id}
-                >
-                    <div className="c-item">
-                        <button onClick={() => addToFav(flight)}>
-                            Add to wishlist
-                        </button>
-                        <button>Order</button>
-                    </div>
-                    <div className="c-item">
-                        {flight.origin} -> {flight.destination}
-                    </div>
-                    <div className="c-item">
-                        {flight.price}EUR
-                    </div>
-                </div>
-            )
-        })
-    }
+    
     return (
         <div className="search-page">
             This is your search page

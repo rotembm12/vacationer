@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@babel/preset-react": "^7.7.4",
+    "mdbreact": "^4.24.0",
     "react": "^16.12.0",
     "react-dom": "^16.12.0"
   }

@@ -4,19 +4,16 @@ import Nav from './components/Nav.jsx';
 import Search from './components/Search.jsx';
 import Wishlist from './components/Wishlist.jsx';
 import Login from './components/Login.jsx';
-
+import Statistics from './components/Statistics.jsx'
 function App() {
     const [airports, setAirports] = useState([]);
     const [flights, setFlights] = useState([]);
     const [isLogin, setIsLogin] = useState(true);
     const [isSearch, setIsSearch] = useState(false);
     const [isWishlist, setIsWishlist] = useState(false);
+    const [isStatistics, setIsStatistics] = useState(false);
     const [wishlist, setWishlist] = useState([]);
     const [loggedUser, setLoggedUser] = useState({});
-
-    useEffect(() => {
-        console.log(loggedUser);
-    }, [loggedUser]);
 
     //effect for fetching airports data from cloud db.
     useEffect(() => {
@@ -32,8 +29,17 @@ function App() {
         })()
     },[])
 
+
+    useEffect(() => {
+        if(localStorage.hasOwnProperty('flights')){
+            const flights = localStorage.getItem('flights').split(',');
+            setWishlist(flights);
+        }
+    },[]);
+    
     const handleSearchedFlights = (flights) => {
         const selectedFlights = flights.slice(0,25);
+
         setFlights(selectedFlights);
     }
 
@@ -52,7 +58,6 @@ function App() {
             const res = await response.json();
             if(res.name){
                 setLoggedUser(res);
-                handleViewChange('search');
             }
         } catch(err) {
             console.log(err);
@@ -88,7 +93,7 @@ function App() {
             apiId: id
         }
         try {
-            const response = await fetch('http://localhost:3000/api/flights', {
+            const response = await fetch('http://localhost:3000/api/flights/wishlist', {
                 method: 'post',
                 mode: 'cors',
                 cache: 'no-cache',
@@ -102,9 +107,9 @@ function App() {
             setWishlist([...wishlist, id]);
             if(localStorage.hasOwnProperty('flights')){
                 const customerSavedFlights = localStorage['flights'].split(',');
-                localStorage.setItem('flights', [...customerSavedFlights, myFlight._id])
+                localStorage.setItem('flights', [...customerSavedFlights, myFlight.apiId])
             } else {
-                localStorage.setItem('flights', [myFlight._id]);
+                localStorage.setItem('flights', [myFlight.apiId]);
             }
         } catch(err) {
             console.error(err);
@@ -117,19 +122,60 @@ function App() {
                 method: 'DELETE'
             });
             const deletedFlight = await response.json();
-            const tmpWishlist = wishlist.filter(flight => {
-                return flight.apiId !== deletedFlight.apiId;
+            const tmpWishlist = wishlist.filter(flgId => {
+                return flgId !== deletedFlight.apiId;
             });    
             setWishlist(tmpWishlist);
             
             const wishlistIds = localStorage['flights'].split(',');
             const updatedWishlistIds = wishlistIds.filter(id => {
-                return id !== deletedFlight._id
+                return id !== deletedFlight.apiId
             });
             if(!updatedWishlistIds.length){
                 return localStorage.removeItem('flights');
             }
             localStorage.setItem('flights', updatedWishlistIds);
+        } catch(err) {
+            console.error(err);
+        }
+    }
+
+    const handleOrder = async (flight) => {
+        const {
+            id,
+            dTimeUTC,
+            aTimeUTC,
+            cityFrom, 
+            cityTo,
+            price, 
+            flyFrom, 
+            flyTo
+        } = flight;        
+        const fromAirport = getRelatedAirports(flyFrom);
+        const toAirport = getRelatedAirports(flyTo);
+        const _flight = {
+            departure: new Date(dTimeUTC*1000),
+            arrival: new Date(aTimeUTC*1000),
+            origin: cityFrom,
+            destination: cityTo,
+            price,
+            fromAirport,
+            toAirport,
+            apiId: id
+        }
+        try {
+        const response = await fetch('http://localhost:3000/api/flights/order', {
+                method: 'post',
+                mode: 'cors',
+                cache: 'no-cache',
+                credentials: 'same-origin',
+                headers: {
+                'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(_flight)
+            });
+            const orderedFlight = await response.json();
+            console.log(orderedFlight);
         } catch(err) {
             console.error(err);
         }
@@ -148,23 +194,37 @@ function App() {
                 setIsSearch(true);
                 setIsWishlist(false);
                 setIsLogin(false);
+                setIsStatistics(false);
                 break;
             case 'wishlist': 
                 setIsWishlist(true);
                 setIsSearch(false);
                 setIsLogin(false);
+                setIsStatistics(false);
                 break;
             case 'login':
                 setIsWishlist(false);
                 setIsSearch(false);
                 setIsLogin(true);
+                setIsStatistics(false);
+                break;
+            case 'statistics':
+                setIsStatistics(true);
+                setIsSearch(false);
+                setIsLogin(false);
+                setIsWishlist(false);
+                break;
+            default:
+                break;
         }
     }
 
     const createFlightCards = (flights) => {
         return flights.map(flight => {
-            let isInList = wishlist.indexOf(flight.id) > -1;
-            console.log(isInList)
+            let isInList = false;
+            if(wishlist.length > 0){
+                isInList = wishlist.find(flgId => flgId === flight.id) ? true : false;
+            }
             return (
                 <div 
                     className='card' 
@@ -174,10 +234,14 @@ function App() {
                         <button onClick={!isInList ? () => addFlightToFav(flight) : null}>
                             {!isInList ? 'add to wishlist' : 'in list'}
                         </button>
-                        <button>Order</button>
+                        <button onClick={() => handleOrder(flight)}>
+                            Order
+                        </button>
                     </div>
                     <div className="c-item">
                         {flight.cityFrom} -> {flight.cityTo}
+                        <br />
+                        {flight.id}
                     </div>
                     <div className="c-item">
                         {flight.price} EUR
@@ -195,7 +259,12 @@ function App() {
                 handleLogout={handleLogout}
             />
 
-            {isLogin ? <Login handleLogin={handleLogin}/> : ''}
+            {isStatistics ? <Statistics /> : '' }
+
+            {isLogin ? <Login
+                            handleLogin={handleLogin}
+                            isLogged={loggedUser.name ? true : false}
+                       /> : ''}
 
             {isSearch ? <Search 
                             airports={airports} 
