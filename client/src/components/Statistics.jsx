@@ -45,16 +45,6 @@ const Statistics = ({flights}) => {
             sortable: true,
         },
         {
-            text: 'DEPARTURE',
-            key: 'departure',
-            sortable: true,
-        },
-        {
-            text: 'ARRIVAL',
-            key: 'arrival',
-            sortable: true,
-        },
-        {
             text: 'WISHLIST',
             key: 'wishlist',
             sortable: true,
@@ -63,7 +53,23 @@ const Statistics = ({flights}) => {
             text: 'ORDERS',
             key: 'orders',
             sortable: true,
+        },
+        {
+            text:'AIRLINE',
+            key: 'airline',
+            sortable: true
+        },
+        {
+            text: 'DEPARTURE',
+            key: 'departure',
+            sortable: true,
+        },
+        {
+            text: 'ARRIVAL',
+            key: 'arrival',
+            sortable: true,
         }
+        
     ];
 
     return(

@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-
+import {MDBBtn, MDBInput} from 'mdbreact';
 const Form = ({submitAction}) => {
     const [from,setFrom] = useState('TLV');
     const [to, setTo] = useState('PRG');
@@ -41,36 +41,50 @@ const Form = ({submitAction}) => {
     }
 
     return (
-        <div className="form">
-            <label htmlFor="">From</label>
-            <input 
-                type="text"
-                name="from"
-                value={from}
-                onChange={handleChange}
-            />
-            <label htmlFor="">To</label>
-            <input 
-                type="text"
-                name="to"
-                value={to}
-                onChange={handleChange}
-            />
-            <label htmlFor="">To</label>
-            <input 
-                type="date"
-                name="departure"
-                value={depart}
-                onChange={handleChange}
-            />
-            <label htmlFor="">To</label>
-            <input 
-                type="date"
-                name="arrival"
-                value={arrival}
-                onChange={handleChange}
-            />
-            <button onClick={handleSubmit}>Submit</button>
+        <div className="form row justify-content-center">
+            <div className="col-10">
+                <MDBInput 
+                    type="text"
+                    label="From Destination"
+                    name="from"
+                    value={from}
+                    onChange={handleChange}
+                />
+            </div>
+            <div className="col-10">
+                <MDBInput 
+                    type="text"
+                    label="To Destination"
+                    name="to"
+                    value={to}
+                    onChange={handleChange}
+                />
+            </div>
+            <div className="col-10">
+                <MDBInput 
+                    type="date"
+                    label="Departure Date"
+                    name="departure"
+                    value={depart}
+                    onChange={handleChange}
+                />
+            </div>
+            <div className="col-10">
+                <MDBInput 
+                    type="date"
+                    label="Arrival Date"
+                    name="arrival"
+                    value={arrival}
+                    onChange={handleChange}
+                />
+            </div>
+        
+            <MDBBtn 
+                color="light-blue"
+                size="lg"
+                onClick={handleSubmit}>
+                Search
+            </MDBBtn>
         </div>
     );
 }

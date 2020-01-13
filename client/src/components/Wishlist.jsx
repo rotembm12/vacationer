@@ -1,6 +1,6 @@
 import React, {useState,useEffect} from 'react';
-
-const Wishlist = ({removeFlightFromFav}) => {
+import { MDBBtn, MDBBadge} from 'mdbreact';
+const Wishlist = ({removeFlightFromFav, handleOrder}) => {
     const [flights, setFlights] = useState([]);
     
     useEffect(() => {
@@ -30,17 +30,28 @@ const Wishlist = ({removeFlightFromFav}) => {
     const createFlightCards = flights => {
         const cards = flights.map(flight => {
             return (
-                <div className='my-card' key={flight._id}>
-                    <div className="c-item">
-                        <button onClick={() => handleRemove(flight)}>
-                            Remove from fav
-                        </button>
-                        <button>Order</button>
+                <div className='my-card row justify-content-center' key={flight._id}>
+                    <div className="col-4 c-item badges-col text-center align-items-center">
+                        <MDBBtn
+                            onClick={() => {handleOrder(flight, true)}}
+                            color="light-green"
+                            outline
+                        >
+                            Order
+                        </MDBBtn>
+                        <MDBBtn 
+                            onClick={() => handleRemove(flight)}
+                            color="danger"
+                            outline
+                        >
+                            Remove
+                        </MDBBtn>
+                        
                     </div>
-                    <div className="c-item">
+                    <div className="col-5 p-3">
                         {flight.origin} -> {flight.destination}
                     </div>
-                    <div className="c-item">
+                    <div className="col-3 text-center">
                         {flight.price}EUR
                     </div>
                 </div>
@@ -50,9 +61,6 @@ const Wishlist = ({removeFlightFromFav}) => {
     }
     return (
         <div className="wishlist-page">
-            <header>
-                this is your wishlist page
-            </header>
             <div className='flight-cards'>
                 {createFlightCards(flights)}
             </div>

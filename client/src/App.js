@@ -7,6 +7,7 @@ import Login from './components/Login.jsx';
 import Statistics from './components/Statistics.jsx'
 import Discounts from './components/Discounts.jsx';
 
+import {MDBBtn } from 'mdbreact';
 function App() {
     const [airports, setAirports] = useState([]);
     const [flights, setFlights] = useState([]);
@@ -43,6 +44,7 @@ function App() {
     const handleSearchedFlights = (flights) => {
         const selectedFlights = flights.length > 25 ? flights.slice(0,25) : flights;
         setFlights(selectedFlights);
+        console.log(selectedFlights);
     }
 
     const handleLogin = async user => {
@@ -144,7 +146,7 @@ function App() {
         }
     }
 
-    const handleOrder = async (flight) => {
+    const handleOrder = async (flight, isFromWishlist = false) => {
         const {
             id,
             dTimeUTC,
@@ -153,9 +155,9 @@ function App() {
             cityTo,
             price, 
             flyFrom, 
-            flyTo,
+            flyTo,  
             airlines
-        } = flight;        
+        } = flight; 
         const fromAirport = getRelatedAirports(flyFrom);
         const toAirport = getRelatedAirports(flyTo);
         const _flight = {
@@ -167,18 +169,15 @@ function App() {
             fromAirport,
             toAirport,
             apiId: id,
-            airline: airlines[0]
+            airline: airlines ? airlines[0] : ''
         }
         try {
         const response = await fetch('http://localhost:3000/api/flights/order', {
                 method: 'post',
-                mode: 'cors',
-                cache: 'no-cache',
-                credentials: 'same-origin',
                 headers: {
                 'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(_flight)
+                body: !isFromWishlist ? JSON.stringify(_flight) : JSON.stringify(flight)
             });
             const orderedFlight = await response.json();
             console.log(orderedFlight);
@@ -253,23 +252,33 @@ function App() {
             }
             return (
                 <div 
-                    className='my-card' 
+                    className='my-card row justify-content-center' 
                     key={flight.id}
                 >
-                    <div className="c-item">
-                        <button onClick={!isInList ? () => addFlightToFav(flight) : null}>
-                            {!isInList ? 'add to wishlist' : 'in list'}
-                        </button>
-                        <button onClick={() => handleOrder(flight)}>
+                    <div className="c-item col-5 text-center">
+                        <MDBBtn
+                            onClick={() => handleOrder(flight)}
+                            color="light-green"
+                            outline
+                        >
                             Order
-                        </button>
+                        </MDBBtn>
+                        <br/>
+                        <MDBBtn 
+                            onClick={!isInList ? () => addFlightToFav(flight) : null}
+                            color={!isInList ? "secondary" : "warning"}
+                            outline
+                        >
+                            {!isInList ? 'add to wishlist' : 'in list'}
+                        </MDBBtn>
                     </div>
-                    <div className="c-item">
+                        
+                    <div className="c-item col-5">
                         {flight.cityFrom} -> {flight.cityTo}
                         <br />
                         {flight.discount ? ( flight.discount + '% SALE') : ''}
                     </div>
-                    <div className="c-item">
+                    <div className="c-item col-2 text-center">
                         {flight.newPrice || flight.price} EUR
                     </div>
                 </div>
@@ -303,6 +312,7 @@ function App() {
 
             {isWishlist ? <Wishlist
                             removeFlightFromFav={removeFlightFromFav}
+                            handleOrder={handleOrder}
                           /> :
             ''}         
             {isSearch ? createFlightCards(flights) : ''}

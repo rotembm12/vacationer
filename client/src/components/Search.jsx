@@ -35,7 +35,6 @@ const Search = ({airports, handleFlights}) => {
     
     return (
         <div className="search-page">
-            This is your search page
             <Form submitAction={getFlights}/>
         </div>
     );

@@ -3,6 +3,8 @@ import _ from 'lodash';
 import ReactDatatable from '@ashvin27/react-datatable';
 import {MDBBtn, MDBInput, MDBModal, MDBModalBody, MDBModalHeader, MDBModalFooter} from 'mdbreact';
 
+
+
 const Discounts = () => {
     const [rows, setRows] = useState([]);
     //inputs controllers//
@@ -16,6 +18,7 @@ const Discounts = () => {
     const [isUpdateTime, setIsUpdateTime] = useState(false);
     const [currentRecord, setCurrentRecord] = useState({});
     
+   
     useEffect(() => {
         (async () => {
             try {
@@ -277,7 +280,7 @@ const Discounts = () => {
             <MDBModal isOpen={isCreateMode} toggle={() => {setIsCreateMode(false)}}>
                 <MDBModalHeader toggle={() => {setIsCreateMode(false)}}>MDBModal title</MDBModalHeader>
                 <MDBModalBody>
-                <MDBInput
+                    <MDBInput
                         label="Airline" 
                         value={airline}
                         onChange={(e) => setAirline(e.target.value)}
