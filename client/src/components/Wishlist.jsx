@@ -30,7 +30,7 @@ const Wishlist = ({removeFlightFromFav}) => {
     const createFlightCards = flights => {
         const cards = flights.map(flight => {
             return (
-                <div className='card' key={flight._id}>
+                <div className='my-card' key={flight._id}>
                     <div className="c-item">
                         <button onClick={() => handleRemove(flight)}>
                             Remove from fav

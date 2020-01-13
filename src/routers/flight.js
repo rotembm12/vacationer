@@ -1,5 +1,7 @@
 const express = require('express');
+const fetch = require('node-fetch');
 const Flight = require('../models/flight');
+const Discount = require('../models/discount');
 const router = new express.Router();
 
 router.post('/api/flights/wishlist', async (req, res) => {
@@ -40,6 +42,18 @@ router.post('/api/flights/order', async (req, res) => {
    }
 })
 
+router.post('/api/flights/outerapi', async (req, res) => {
+   try {
+      const response = await fetch(req.body.url);
+      const flightsFromApi = await response.json();
+      const flights = flightsFromApi.data.length > 50 ? flightsFromApi.data.slice(0,50) : flightsFromApi.data;
+      const testedFlights = await Discount.discountsAvailable(flights);
+      res.send(testedFlights);
+   } catch (err){
+      res.send(err);
+   }
+});
+
 router.get('/api/flights', async (req, res) => {
    if(req.query.flights){
       try {
@@ -65,12 +79,23 @@ router.get('/api/flights', async (req, res) => {
    }
 });
 
-router.delete('/api/flights/:id', async (req, res) => {
+router.delete('/api/flights/wishlist/:id', async (req, res) => {
    try {
-      const deletedFlight = await Flight.findOneAndDelete({
-         _id: req.params.id
-      });
-      return deletedFlight ? res.send(deletedFlight) : res.status(404).send();
+      const id = req.params.id || 'not-exist';
+      if(id === 'not-exist'){
+         return res.send({err: 'no id is given with the request'});
+      }
+      const existingFlight = await Flight.findById(id);
+      if(existingFlight){
+         const {wishlist, orders} = existingFlight;
+         if(wishlist > 1 || orders > 0){
+            existingFlight.wishlist = wishlist - 1;
+            await existingFlight.save();
+            return res.send(existingFlight);
+         }
+         const deletedFlight = await existingFlight.remove();
+         res.send(deletedFlight);
+      }
    } catch(err) {
       res.status(500).send(err);
    }

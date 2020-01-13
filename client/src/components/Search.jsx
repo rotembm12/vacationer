@@ -9,13 +9,25 @@ const Search = ({airports, handleFlights}) => {
         const url = `
          https://api.skypicker.com/flights?to_type=city&flyFrom=${from}&to=${to}&dateFrom=${departure}&dateTo=${arrival}&partner=rotke
         `;
+        const reqBody = {
+            url
+        }
         try {
-            const response = await fetch(url);
+            const response = await fetch(`http://localhost:3000/api/flights/outerapi`,{
+                method: 'post',
+                mode: 'cors',
+                cache: 'no-cache',
+                credentials: 'same-origin',
+                headers: {
+                'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(reqBody)
+            });
             const flights = await response.json();
-            if(flights.data.length > 0){
-                handleFlights(flights.data);
+            if(flights.length > 0){
+                handleFlights(flights);
             }
-            setFlights(flights.data);
+            setFlights(flights);
         } catch(err){
             console.log(err);
         }

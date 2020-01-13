@@ -14,11 +14,17 @@ const Nav = ({handleViewChange, handleLogout, isLogged}) => {
             </li>
 
             { isLogged ? (
+                <>
                 <li id="statistics" onClick={handleClick}>
                     Statistics
                 </li>
+                <li id="discounts" onClick={handleClick}>
+                    Discounts
+                </li>
+                </>
             ) : null}
 
+            
             <li id="login" onClick={!isLogged ? handleClick : handleLogout}>
                 {!isLogged ? 'Login' : 'logout'}
             </li>

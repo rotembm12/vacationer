@@ -7,6 +7,8 @@ body {
       display: flex;
       width: 100%;
       padding: 4px;
+      background-image: linear-gradient(to right top, #90d7ff, #a3d5ff, #b9d1ff, #cfceff, #e4caff);
+      margin-bottom: 10px;
       // list-style-type: none;
       justify-content: space-evenly;
       li {
@@ -14,12 +16,10 @@ body {
          margin-bottom: 3px;
       }
       li:hover {
-         color: rgb(80, 96, 240);
+         color: rgb(255, 119, 85);
          cursor: pointer;
       }
-      .current-tab {
-         color: rgb(80, 96, 240);
-      }
+    
    }
    .container {
       width: 90%;
@@ -48,7 +48,7 @@ body {
    
 }
 
-.card { 
+.my-card { 
     display: flex;
     justify-content:center;
     width: 100%;

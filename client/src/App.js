@@ -5,6 +5,8 @@ import Search from './components/Search.jsx';
 import Wishlist from './components/Wishlist.jsx';
 import Login from './components/Login.jsx';
 import Statistics from './components/Statistics.jsx'
+import Discounts from './components/Discounts.jsx';
+
 function App() {
     const [airports, setAirports] = useState([]);
     const [flights, setFlights] = useState([]);
@@ -12,6 +14,7 @@ function App() {
     const [isSearch, setIsSearch] = useState(false);
     const [isWishlist, setIsWishlist] = useState(false);
     const [isStatistics, setIsStatistics] = useState(false);
+    const [isDiscounts, setIsDiscounts] = useState(false);
     const [wishlist, setWishlist] = useState([]);
     const [loggedUser, setLoggedUser] = useState({});
 
@@ -26,8 +29,8 @@ function App() {
             } catch (err) {
                 console.error(err);
             }
-        })()
-    },[])
+        })();
+    },[]);
 
 
     useEffect(() => {
@@ -38,8 +41,7 @@ function App() {
     },[]);
     
     const handleSearchedFlights = (flights) => {
-        const selectedFlights = flights.slice(0,25);
-
+        const selectedFlights = flights.length > 25 ? flights.slice(0,25) : flights;
         setFlights(selectedFlights);
     }
 
@@ -78,7 +80,8 @@ function App() {
             cityTo,
             price, 
             flyFrom, 
-            flyTo
+            flyTo,
+            airlines
         } = flight;        
         const fromAirport = getRelatedAirports(flyFrom);
         const toAirport = getRelatedAirports(flyTo);
@@ -90,7 +93,8 @@ function App() {
             price,
             fromAirport,
             toAirport,
-            apiId: id
+            apiId: id,
+            airline: airlines[0]
         }
         try {
             const response = await fetch('http://localhost:3000/api/flights/wishlist', {
@@ -118,7 +122,7 @@ function App() {
  
     const removeFlightFromFav = async (flight) => {
         try {
-            const response = await fetch(`http://localhost:3000/api/flights/${flight._id}`,{
+            const response = await fetch(`http://localhost:3000/api/flights/wishlist/${flight._id}`,{
                 method: 'DELETE'
             });
             const deletedFlight = await response.json();
@@ -149,7 +153,8 @@ function App() {
             cityTo,
             price, 
             flyFrom, 
-            flyTo
+            flyTo,
+            airlines
         } = flight;        
         const fromAirport = getRelatedAirports(flyFrom);
         const toAirport = getRelatedAirports(flyTo);
@@ -161,7 +166,8 @@ function App() {
             price,
             fromAirport,
             toAirport,
-            apiId: id
+            apiId: id,
+            airline: airlines[0]
         }
         try {
         const response = await fetch('http://localhost:3000/api/flights/order', {
@@ -195,25 +201,41 @@ function App() {
                 setIsWishlist(false);
                 setIsLogin(false);
                 setIsStatistics(false);
+                setIsDiscounts(false);
                 break;
+
             case 'wishlist': 
                 setIsWishlist(true);
                 setIsSearch(false);
                 setIsLogin(false);
                 setIsStatistics(false);
+                setIsDiscounts(false);
                 break;
+
             case 'login':
                 setIsWishlist(false);
                 setIsSearch(false);
                 setIsLogin(true);
                 setIsStatistics(false);
+                setIsDiscounts(false);
                 break;
+
             case 'statistics':
                 setIsStatistics(true);
                 setIsSearch(false);
                 setIsLogin(false);
                 setIsWishlist(false);
+                setIsDiscounts(false);
                 break;
+
+            case 'discounts':
+                setIsDiscounts(true);
+                setIsStatistics(false);
+                setIsSearch(false);
+                setIsLogin(false);
+                setIsWishlist(false);
+                break;
+
             default:
                 break;
         }
@@ -225,9 +247,13 @@ function App() {
             if(wishlist.length > 0){
                 isInList = wishlist.find(flgId => flgId === flight.id) ? true : false;
             }
+            if(flight.discount){
+                const {discount, price} = flight;
+                flight['newPrice'] = price - price * (discount/100);
+            }
             return (
                 <div 
-                    className='card' 
+                    className='my-card' 
                     key={flight.id}
                 >
                     <div className="c-item">
@@ -241,10 +267,10 @@ function App() {
                     <div className="c-item">
                         {flight.cityFrom} -> {flight.cityTo}
                         <br />
-                        {flight.id}
+                        {flight.discount ? ( flight.discount + '% SALE') : ''}
                     </div>
                     <div className="c-item">
-                        {flight.price} EUR
+                        {flight.newPrice || flight.price} EUR
                     </div>
                 </div>
             )
@@ -261,6 +287,8 @@ function App() {
 
             {isStatistics ? <Statistics /> : '' }
 
+            {isDiscounts ? <Discounts/> : '' }
+            
             {isLogin ? <Login
                             handleLogin={handleLogin}
                             isLogged={loggedUser.name ? true : false}

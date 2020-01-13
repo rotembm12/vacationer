@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
-import {MDBDataTable} from 'mdbreact';
-
+import {MDBBtn} from 'mdbreact';
+import ReactDatatable from '@ashvin27/react-datatable';
 const Statistics = ({flights}) => {
     const [rows, setRows] = useState([]);
     useEffect(() => {
@@ -9,67 +9,69 @@ const Statistics = ({flights}) => {
                 const url = 'http://localhost:3000/api/flights';
                 const response = await fetch(url);
                 const returnedFlights = await response.json();
-                setRows(returnedFlights);
+                const rows = Array.from(returnedFlights);
+                console.log(rows);
+                setRows(rows);
             } catch(err) {
                 console.log(err);
             }
         })();
     },[])
     
-    useEffect(() => {
+    const config = {
+        page_size: 10,
+        length_menu: [10,20,50]
+    }
 
-    },[rows])
     const columns = [
         {
-            label: 'ID',
-            field: '_id',
-            sort: 'asc',
+            text: 'ID',
+            key: '_id',
+            width: 50
         },
         {
-            label: 'ORIGIN',
-            field: 'origin',
-            sort: 'asc',
+            text: 'ORIGIN',
+            key: 'origin',
+            sortable: true,
         },
         {
-            label: 'DESTINATION',
-            field: 'destination',
-            sort: 'asc',
+            text: 'DESTINATION',
+            key: 'destination',
+            sortable: true,
         },
         {
-            label: 'PRICE',
-            field: 'price',
-            sort: 'asc',
+            text: 'PRICE',
+            key: 'price',
+            sortable: true,
         },
         {
-            label: 'DEPARTURE',
-            field: 'departure',
-            sort: 'asc',
+            text: 'DEPARTURE',
+            key: 'departure',
+            sortable: true,
         },
         {
-            label: 'ARRIVAL',
-            field: 'arrival',
-            sort: 'asc',
+            text: 'ARRIVAL',
+            key: 'arrival',
+            sortable: true,
         },
         {
-            label: 'WISHLIST',
-            field: 'wishlist',
-            sort: 'asc',
+            text: 'WISHLIST',
+            key: 'wishlist',
+            sortable: true,
         },
         {
-            label: 'ORDERS',
-            field: 'orders',
-            sort: 'asc',
-        },
+            text: 'ORDERS',
+            key: 'orders',
+            sortable: true,
+        }
     ];
 
     return(
         <div id="statistics">
-            <MDBDataTable 
-                responsive
-                striped
-                bordered
-                hover
-                data={ { columns, rows } }
+            <ReactDatatable
+                config={config}
+                records={rows}
+                columns={columns}
             />
         </div>
     )

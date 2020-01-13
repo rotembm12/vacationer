@@ -8,7 +8,7 @@ const uri =
    mongoose.connect(uri, {
       useNewUrlParser: true,
       useCreateIndex: true,
-      useFindAndModify: true,
+      useFindAndModify: false,
       useUnifiedTopology: true
    }).then(() => console.log('mongoose conntected'))
      .catch(err => console.log(err.stack));
