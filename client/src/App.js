@@ -27,9 +27,10 @@ function App() {
         //phone1: ""
         //......
     })
-    const [amount, setAmount] = useState(1);
-    const [isOpen, setIsOpen] = useState(false);
     const [price, setPrice] = useState(0);
+    const [isOpen, setIsOpen] = useState(false);
+    const [amount, setAmount] = useState(1);
+
     //effect for fetching airports data from cloud db.
     useEffect(() => {
         (async () => {
@@ -224,9 +225,12 @@ function App() {
     },[isOpen])
 
     useEffect(() => {
-        const flightToOrder = JSON.parse(localStorage.getItem('flightOrder'));
-        setPrice(amount*flightToOrder.price);
+        if(price){
+            const flightToOrder = JSON.parse(localStorage.getItem('flightOrder'));
+            setPrice(amount*flightToOrder.price);
+        }
     }, [amount])
+
     const getRelatedAirports = (apCode) => {
         const airport = airports.find(airport => {
             return airport.code === apCode;
@@ -327,19 +331,6 @@ function App() {
     const renderPassportInputs = () => {
         const inputs = [];
         for(let i = 0; i < amount; i++){
-            // if(i === 0){
-            //     setPassports({
-            //         [`name${i}`]: "",
-            //         [`phone${i}`]: ""
-            //     });
-            // } else {
-            //     setPassports({
-            //         ...passports,
-            //         [`name${i}`]: "",
-            //         [`phone${i}`]: ""
-            //     });
-            // }
-            
             inputs.push(
                 <div key={`passport${i}`}>
                     <MDBInput
@@ -393,7 +384,7 @@ function App() {
                           /> :
             ''}         
             {isSearch ? createFlightCards(flights) : ''}
-            <MDBModal isOpen={isOpen} >
+            {isOpen ? <MDBModal isOpen={isOpen} >
                 <MDBModalHeader>order details</MDBModalHeader>
                 <MDBModalBody>
                     <MDBInput
@@ -408,7 +399,7 @@ function App() {
                 <MDBBtn color="danger" onClick={() => {setIsOpen(false)}}>Close</MDBBtn>
                 <MDBBtn color="success" onClick={handleOrder}>order</MDBBtn>
                 </MDBModalFooter>
-            </MDBModal>
+            </MDBModal>:null}
         </div>
     )
 }
