@@ -29,7 +29,7 @@ router.post('/api/users/login', async (req, res) => {
    console.log(req.body);
    try {
       ;
-      const user = await User.findOne({name: username, password, email});
+      const user = await User.findOne({name: username, password});
       console.log(user);
       if(!user){
          return res.send({msg: "no such user"});
