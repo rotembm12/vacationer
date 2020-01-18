@@ -7,7 +7,8 @@ import Login from './components/Login.jsx';
 import Statistics from './components/Statistics.jsx'
 import Discounts from './components/Discounts.jsx';
 
-import {MDBBtn } from 'mdbreact';
+import { MDBBtn, MDBModal, MDBModalBody, MDBModalHeader, MDBModalFooter, MDBInput } from 'mdbreact';
+
 function App() {
     const [airports, setAirports] = useState([]);
     const [flights, setFlights] = useState([]);
@@ -19,6 +20,16 @@ function App() {
     const [wishlist, setWishlist] = useState([]);
     const [loggedUser, setLoggedUser] = useState({});
 
+
+    //ORDER MODAL STATE
+    const [passports, setPassports]= useState({
+        //name1: "",
+        //phone1: ""
+        //......
+    })
+    const [amount, setAmount] = useState(1);
+    const [isOpen, setIsOpen] = useState(false);
+    const [price, setPrice] = useState(0);
     //effect for fetching airports data from cloud db.
     useEffect(() => {
         (async () => {
@@ -146,7 +157,13 @@ function App() {
         }
     }
 
-    const handleOrder = async (flight, isFromWishlist = false) => {
+    const handleOrder = async () => {
+        for(let i = 0; i < amount; i++){
+            if(!passports[`name${i}`] || passports[`name${i}`] === "" || !passports[`phone${i}`] || passports[`phone${i}`] === ""){
+                return console.log('empty fields', passports);
+            }
+        }
+        const flight = JSON.parse(localStorage.getItem('flightOrder'));
         const {
             id,
             dTimeUTC,
@@ -171,21 +188,45 @@ function App() {
             apiId: id,
             airline: airlines ? airlines[0] : ''
         }
+        console.log(_flight);
         try {
-        const response = await fetch('http://localhost:3000/api/flights/order', {
+            const response = await fetch('http://localhost:3000/api/flights/order', {
                 method: 'post',
                 headers: {
                 'Content-Type': 'application/json'
                 },
-                body: !isFromWishlist ? JSON.stringify(_flight) : JSON.stringify(flight)
+                body: !isWishlist ? JSON.stringify(_flight) : JSON.stringify(flight)
             });
             const orderedFlight = await response.json();
-            console.log(orderedFlight);
+            if(orderedFlight){
+                setPassports({});
+                setIsOpen(false);
+                alert('purchase success');
+            }
         } catch(err) {
             console.error(err);
         }
     }
 
+    const openOrderModal = (flight) => {
+        localStorage.setItem('flightOrder', JSON.stringify(flight));
+        setIsOpen(true);
+    }
+
+    useEffect(() => {
+        if(!isOpen){
+            setAmount(1);
+            return setPrice(0);
+        }
+        const flight = localStorage.getItem('flightOrder');
+        const flightToOrder = JSON.parse(flight);        
+        setPrice(flightToOrder.price * parseInt(amount));
+    },[isOpen])
+
+    useEffect(() => {
+        const flightToOrder = JSON.parse(localStorage.getItem('flightOrder'));
+        setPrice(amount*flightToOrder.price);
+    }, [amount])
     const getRelatedAirports = (apCode) => {
         const airport = airports.find(airport => {
             return airport.code === apCode;
@@ -257,9 +298,8 @@ function App() {
                 >
                     <div className="c-item col-5 text-center">
                         <MDBBtn
-                            onClick={() => handleOrder(flight)}
+                            onClick={() => openOrderModal(flight)}
                             color="light-green"
-                            outline
                         >
                             Order
                         </MDBBtn>
@@ -267,7 +307,6 @@ function App() {
                         <MDBBtn 
                             onClick={!isInList ? () => addFlightToFav(flight) : null}
                             color={!isInList ? "secondary" : "warning"}
-                            outline
                         >
                             {!isInList ? 'add to wishlist' : 'in list'}
                         </MDBBtn>
@@ -285,7 +324,45 @@ function App() {
             )
         });
     }
-
+    const renderPassportInputs = () => {
+        const inputs = [];
+        for(let i = 0; i < amount; i++){
+            // if(i === 0){
+            //     setPassports({
+            //         [`name${i}`]: "",
+            //         [`phone${i}`]: ""
+            //     });
+            // } else {
+            //     setPassports({
+            //         ...passports,
+            //         [`name${i}`]: "",
+            //         [`phone${i}`]: ""
+            //     });
+            // }
+            
+            inputs.push(
+                <div key={`passport${i}`}>
+                    <MDBInput
+                        label = "FULL NAME"
+                        value = {passports[`name${i}`]}
+                        onChange={(e) => {setPassports({
+                                ...passports,
+                                [`name${i}`]:e.target.value
+                            })}}
+                    />
+                    <MDBInput
+                        label = "PHONE"
+                        value = {passports[`phone${i}`]}
+                        onChange={(e) => {setPassports({
+                                ...passports,
+                                [`phone${i}`]:e.target.value
+                            })}}
+                    />
+                </div>
+            );
+        } 
+        return inputs;
+    }
     return(
         <div className="app container">
             <Nav 
@@ -312,10 +389,26 @@ function App() {
 
             {isWishlist ? <Wishlist
                             removeFlightFromFav={removeFlightFromFav}
-                            handleOrder={handleOrder}
+                            handleOrder={openOrderModal}
                           /> :
             ''}         
             {isSearch ? createFlightCards(flights) : ''}
+            <MDBModal isOpen={isOpen} >
+                <MDBModalHeader>order details</MDBModalHeader>
+                <MDBModalBody>
+                    <MDBInput
+                        label="TICKETS AMOUNT"
+                        value={amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                    />
+                    <h4>PRICE {price}EURO</h4>
+                    {renderPassportInputs()}
+                </MDBModalBody>
+                <MDBModalFooter>
+                <MDBBtn color="danger" onClick={() => {setIsOpen(false)}}>Close</MDBBtn>
+                <MDBBtn color="success" onClick={handleOrder}>order</MDBBtn>
+                </MDBModalFooter>
+            </MDBModal>
         </div>
     )
 }

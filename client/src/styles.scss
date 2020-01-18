@@ -1,5 +1,3 @@
-
-
 body {
    background-image: url('./assets/bgimage.jpg');
    background-repeat: no-repeat;
@@ -21,8 +19,8 @@ body {
          color: rgb(0, 0, 197);
          cursor: pointer;
       }
-    
    }
+   
    .container {
       width: 90%;
       margin: 2.5% auto;
@@ -44,6 +42,7 @@ body {
 
 .my-card { 
     height: 140px;
+    background-color: #91b2dd;
     margin: 12px auto;
     max-width: 80%;
     border: 3px solid #aec4e1;

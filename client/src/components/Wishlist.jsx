@@ -34,15 +34,13 @@ const Wishlist = ({removeFlightFromFav, handleOrder}) => {
                     <div className="col-4 c-item badges-col text-center align-items-center">
                         <MDBBtn
                             onClick={() => {handleOrder(flight, true)}}
-                            color="light-green"
-                            outline
+                            color="light"
                         >
                             Order
                         </MDBBtn>
                         <MDBBtn 
                             onClick={() => handleRemove(flight)}
                             color="danger"
-                            outline
                         >
                             Remove
                         </MDBBtn>
