@@ -217,7 +217,8 @@ function App() {
     useEffect(() => {
         if(!isOpen){
             setAmount(1);
-            return setPrice(0);
+            setPrice(0);
+            return;
         }
         const flight = localStorage.getItem('flightOrder');
         const flightToOrder = JSON.parse(flight);        
