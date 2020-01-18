@@ -43,7 +43,7 @@ discountSchmea.statics.discountsAvailable = async (flights) => {
                     flight.orders >= minOrders &&
                     flight.airline === airline
                 ){
-                    flight.discount = discount;
+                    flight.discount = discount/2;
                 }
             }
             
