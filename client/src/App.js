@@ -20,8 +20,6 @@ function App() {
     const [wishlist, setWishlist] = useState([]);
     const [loggedUser, setLoggedUser] = useState({});
     const [isLoading, setIsLoading] = useState(false);
-
-    //ORDER MODAL STATE
     const [passports, setPassports]= useState({
         //name1: "",
         //phone1: ""
@@ -169,10 +167,15 @@ function App() {
                 return alert('empty fields', passports);
             }
             if(passports[`phone${i}`] && !RegExp(/^05\d([-]{0,1})\d{7}$/).test(passports[`phone${i}`])){
-                return alert(`${passports[`phone${i}`]} is not valid phone`);
+                return alert(`
+                    ${passports[`phone${i}`]} is not valid phone
+                    phone must be valid israeli cellular phone like:
+                    05xxxxxxxx`);
             }
             if(passports[`email${i}`] && !RegExp(/\S+@\S+\.\S+/).test(passports[`email${i}`])){
-                return alert(`${passports[`email${i}`]} is not valid email`);
+                return alert(`
+                ${passports[`email${i}`]} is not valid email
+                email must be like: string@string.string`);
             }
         }
         
