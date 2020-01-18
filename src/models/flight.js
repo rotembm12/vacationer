@@ -50,6 +50,10 @@ const flightSchema = new mongoose.Schema({
    orders: {
       type: Number,
       default: 0
+   },
+   discount: {
+      type: Number,
+      default: 0
    }
 });
 

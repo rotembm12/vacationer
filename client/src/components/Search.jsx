@@ -1,8 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import Form from './Form.jsx';
 import Card from './Card';
-const Search = ({airports, handleFlights}) => {
-    const [flights, setFlights] = useState(flights || []);
+const Search = ({airports, handleFlights, setIsLoading}) => {
 
     const getFlights = async (search) => {
         const {from, to, departure, arrival} = search;
@@ -13,6 +12,7 @@ const Search = ({airports, handleFlights}) => {
             url
         }
         try {
+            setIsLoading(true);
             const response = await fetch(`/api/flights/outerapi`,{
                 method: 'post',
                 mode: 'cors',
@@ -27,7 +27,6 @@ const Search = ({airports, handleFlights}) => {
             if(flights.length > 0){
                 handleFlights(flights);
             }
-            setFlights(flights);
         } catch(err){
             console.log(err);
         }

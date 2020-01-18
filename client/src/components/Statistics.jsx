@@ -6,7 +6,7 @@ const Statistics = ({flights}) => {
     useEffect(() => {
         (async () => {
             try {
-                const url = '3000/api/flights';
+                const url = '/api/flights';
                 const response = await fetch(url);
                 const returnedFlights = await response.json();
                 const rows = Array.from(returnedFlights);

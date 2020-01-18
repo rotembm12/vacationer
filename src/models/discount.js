@@ -29,13 +29,24 @@ discountSchmea.statics.discountsAvailable = async (flights) => {
                 minOrders, 
                 airline
             } = disc;
-            if (
-                flight.wishlist >= minWishlists &&
-                flight.orders >= minOrders &&
-                flight.airlines[0] === airline || flight.airlines[1] === airline
-            ){
-                flight.discount = discount;
+            if(flight.airlines){
+                if (
+                    flight.wishlist >= minWishlists &&
+                    flight.orders >= minOrders &&
+                    flight.airlines[0] === airline || flight.airlines[1] === airline
+                ){
+                    flight.discount = discount;
+                }
+            } else {
+                if (
+                    flight.wishlist >= minWishlists &&
+                    flight.orders >= minOrders &&
+                    flight.airline === airline
+                ){
+                    flight.discount = discount;
+                }
             }
+            
         });
         return flight;
     });

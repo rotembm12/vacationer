@@ -62,7 +62,10 @@ router.get('/api/flights', async (req, res) => {
             'apiId':{ $in: flightsIds }
          }).populate('fromAirport')
            .populate('toAirport');
-         res.send(flights);
+         console.log(flights);
+         const testedFlights = await Discount.discountsAvailable(flights);
+         console.log(testedFlights);
+         res.send(testedFlights);
       }
       catch (err) {
          res.send(err);

@@ -7,7 +7,7 @@ import Login from './components/Login.jsx';
 import Statistics from './components/Statistics.jsx'
 import Discounts from './components/Discounts.jsx';
 
-import { MDBBtn, MDBModal, MDBModalBody, MDBModalHeader, MDBModalFooter, MDBInput } from 'mdbreact';
+import {MDBRow, MDBCol, MDBBtn, MDBModal, MDBModalBody, MDBModalHeader, MDBModalFooter, MDBInput } from 'mdbreact';
 
 function App() {
     const [airports, setAirports] = useState([]);
@@ -19,7 +19,7 @@ function App() {
     const [isDiscounts, setIsDiscounts] = useState(false);
     const [wishlist, setWishlist] = useState([]);
     const [loggedUser, setLoggedUser] = useState({});
-
+    const [isLoading, setIsLoading] = useState(false);
 
     //ORDER MODAL STATE
     const [passports, setPassports]= useState({
@@ -55,6 +55,7 @@ function App() {
     
     const handleSearchedFlights = (flights) => {
         const selectedFlights = flights.length > 25 ? flights.slice(0,25) : flights;
+        setIsLoading(false);
         setFlights(selectedFlights);
         console.log(selectedFlights);
     }
@@ -95,7 +96,9 @@ function App() {
             price, 
             flyFrom, 
             flyTo,
-            airlines
+            airlines,
+            discount,
+            newPrice
         } = flight;        
         const fromAirport = getRelatedAirports(flyFrom);
         const toAirport = getRelatedAirports(flyTo);
@@ -108,7 +111,9 @@ function App() {
             fromAirport,
             toAirport,
             apiId: id,
-            airline: airlines[0]
+            discount,
+            airline: airlines[0],
+            newPrice: newPrice ? newPrice : price
         }
         try {
             const response = await fetch('/api/flights/wishlist', {
@@ -161,9 +166,16 @@ function App() {
     const handleOrder = async () => {
         for(let i = 0; i < amount; i++){
             if(!passports[`name${i}`] || passports[`name${i}`] === "" || !passports[`phone${i}`] || passports[`phone${i}`] === ""){
-                return console.log('empty fields', passports);
+                return alert('empty fields', passports);
+            }
+            if(passports[`phone${i}`] && !RegExp(/^05\d([-]{0,1})\d{7}$/).test(passports[`phone${i}`])){
+                return alert(`${passports[`phone${i}`]} is not valid phone`);
+            }
+            if(passports[`email${i}`] && !RegExp(/\S+@\S+\.\S+/).test(passports[`email${i}`])){
+                return alert(`${passports[`email${i}`]} is not valid email`);
             }
         }
+        
         const flight = JSON.parse(localStorage.getItem('flightOrder'));
         const {
             id,
@@ -203,6 +215,7 @@ function App() {
                 setPassports({});
                 setIsOpen(false);
                 alert('purchase success');
+                localStorage.removeItem('flightOrder');
             }
         } catch(err) {
             console.error(err);
@@ -216,13 +229,17 @@ function App() {
 
     useEffect(() => {
         if(!isOpen){
+            document.body.classList.remove('disable-scroll');
             setAmount(1);
             setPrice(0);
+            setPassports({})
             return;
         }
+        document.body.classList.add('disable-scroll');
         const flight = localStorage.getItem('flightOrder');
-        const flightToOrder = JSON.parse(flight);        
-        setPrice(flightToOrder.price * parseInt(amount));
+        const flightToOrder = JSON.parse(flight);   
+        const _price = flightToOrder.newPrice ? flightToOrder.newPrice : flightToOrder.price;     
+        setPrice(_price * parseInt(amount));
     },[isOpen])
 
     useEffect(() => {
@@ -294,12 +311,12 @@ function App() {
             }
             if(flight.discount){
                 const {discount, price} = flight;
-                flight['newPrice'] = price - price * (discount/100);
+                flight['newPrice'] = Math.round(price - price * (discount/100));
             }
             return (
                 <div 
-                    className='my-card row justify-content-center' 
-                    key={flight.id}
+                    className={flight['newPrice'] ? 'my-card sale row justify-content-center' : 'my-card row justify-content-center'}
+                    key={flight._id}
                 >
                     <div className="c-item col-5 text-center">
                         <MDBBtn
@@ -318,9 +335,17 @@ function App() {
                     </div>
                         
                     <div className="c-item col-5">
-                        {flight.cityFrom} -> {flight.cityTo}
-                        <br />
-                        {flight.discount ? ( flight.discount + '% SALE') : ''}
+                        {flight.discount ? (<>
+                            <span className="span-sale">{flight.discount + '% SALE'}</span>
+                            <br/>
+                        </>) : ''}
+                        {flight.cityFrom} &rarr; {flight.cityTo}
+                        <br/>
+                        Airline {flight.airlines[0]}
+                        <br/>
+                        Departure {new Date(flight.dTimeUTC*1000).toLocaleString()}
+                        <br/>
+                        Arrival {new Date(flight.aTimeUTC*1000).toLocaleString()}
                     </div>
                     <div className="c-item col-2 text-center">
                         {flight.newPrice || flight.price} EUR
@@ -333,7 +358,9 @@ function App() {
         const inputs = [];
         for(let i = 0; i < amount; i++){
             inputs.push(
+                <>
                 <div key={`passport${i}`}>
+                    <h4>Passenger {i+1}</h4>
                     <MDBInput
                         label = "FULL NAME"
                         value = {passports[`name${i}`]}
@@ -350,13 +377,24 @@ function App() {
                                 [`phone${i}`]:e.target.value
                             })}}
                     />
+                    <MDBInput
+                        label = "EMAIL"
+                        value = {passports[`email${i}`]}
+                        onChange={(e) => {setPassports({
+                                ...passports,
+                                [`email${i}`]:e.target.value
+                            })}}
+                    />
                 </div>
+                <br/>
+                </>
             );
         } 
         return inputs;
     }
+
     return(
-        <div className="app container">
+        <div className={"app container"}>
             <Nav 
                 handleViewChange={handleViewChange} 
                 isLogged={loggedUser.name ? true : false}
@@ -376,6 +414,7 @@ function App() {
                             airports={airports} 
                             handleFlights={handleSearchedFlights}
                             wishlist={wishlist}
+                            setIsLoading={setIsLoading}
                         /> :
             ''}
 
@@ -383,17 +422,39 @@ function App() {
                             removeFlightFromFav={removeFlightFromFav}
                             handleOrder={openOrderModal}
                           /> :
-            ''}         
+            ''}  
+            {isLoading ? (
+                <MDBRow around = {true}>
+                    <MDBCol
+                        size="1"
+                        around = {true}
+                    >
+                        <div className="spinner-border text-primary" role="status">
+                            <span className="sr-only">Loading...</span>
+                        </div>
+                    </MDBCol>
+                </MDBRow>
+            ) : null}
+
             {isSearch ? createFlightCards(flights) : ''}
+            
             {isOpen ? <MDBModal isOpen={isOpen} >
-                <MDBModalHeader>order details</MDBModalHeader>
+                <MDBModalHeader>Order</MDBModalHeader>
                 <MDBModalBody>
-                    <MDBInput
-                        label="TICKETS AMOUNT"
-                        value={amount}
-                        onChange={(e) => setAmount(e.target.value)}
-                    />
-                    <h4>PRICE {price}EURO</h4>
+                    <MDBRow>
+                        <MDBCol size="8">
+                            <MDBInput
+                                label="TICKETS AMOUNT"
+                                value={amount}
+                                onChange={(e) => setAmount(e.target.value)}
+                            />
+                        </MDBCol>
+                        <MDBCol size="4" middle>
+                            <h5>{price} EURO</h5>
+                        </MDBCol>
+
+                    </MDBRow>
+                    
                     {renderPassportInputs()}
                 </MDBModalBody>
                 <MDBModalFooter>

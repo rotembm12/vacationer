@@ -1,10 +1,11 @@
 import React, {useState} from 'react';
 import {MDBBtn, MDBInput} from 'mdbreact';
 const Form = ({submitAction}) => {
+    const defaultDate = new Date();
     const [from,setFrom] = useState('TLV');
     const [to, setTo] = useState('PRG');
-    const [depart, setDepart] = useState('');
-    const [arrival, setArrival] = useState('');
+    const [depart, setDepart] = useState(depart || `${defaultDate.getFullYear()}-0${defaultDate.getMonth() + 1}-${defaultDate.getDate()}` );
+    const [arrival, setArrival] = useState(arrival || `${defaultDate.getFullYear()}-0${defaultDate.getMonth() + 1}-${defaultDate.getDate() + 1}`);
 
     const handleChange = (e) => {
         switch(e.target.name){
