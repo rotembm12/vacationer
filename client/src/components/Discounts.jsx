@@ -22,7 +22,7 @@ const Discounts = () => {
     useEffect(() => {
         (async () => {
             try {
-                const url = 'http://localhost:3000/api/discount';
+                const url = '/api/discount';
                 const response = await fetch(url);
                 const returnedDiscounts = await response.json();
                 setRows(returnedDiscounts);
@@ -62,7 +62,7 @@ const Discounts = () => {
                 `);
             }
             try {
-                const response = await fetch(`http://localhost:3000/api/discount/${currentRecord._id}`,{
+                const response = await fetch(`/api/discount/${currentRecord._id}`,{
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
@@ -94,7 +94,7 @@ const Discounts = () => {
             return alert('Please fill all fields');
         }
         try {
-            const response = await fetch('http://localhost:3000/api/discount',{
+            const response = await fetch('/api/discount',{
                 method: 'post',
                 headers: {
                     'Content-Type': 'application/json'
@@ -112,7 +112,7 @@ const Discounts = () => {
 
     const onDeleteDiscount = async (discount) => {
         try {
-            const response = await fetch(`http://localhost:3000/api/discount/${discount._id}`,{
+            const response = await fetch(`/api/discount/${discount._id}`,{
                 method: 'delete'
             });
             const deletedDiscount = await response.json();

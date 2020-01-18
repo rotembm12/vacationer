@@ -34,7 +34,7 @@ function App() {
     useEffect(() => {
         (async () => {
             try {
-                const url = 'http://localhost:3000/api/airports';
+                const url = '/api/airports';
                 const response = await fetch(url);
                 const airports = await response.json();
                 setAirports(airports);
@@ -60,7 +60,7 @@ function App() {
 
     const handleLogin = async user => {
         try {
-            const response = await fetch('http://localhost:3000/api/users/login', {
+            const response = await fetch('/api/users/login', {
                 method: 'post',
                 mode: 'cors',
                 cache: 'no-cache',
@@ -110,7 +110,7 @@ function App() {
             airline: airlines[0]
         }
         try {
-            const response = await fetch('http://localhost:3000/api/flights/wishlist', {
+            const response = await fetch('/api/flights/wishlist', {
                 method: 'post',
                 mode: 'cors',
                 cache: 'no-cache',
@@ -135,7 +135,7 @@ function App() {
  
     const removeFlightFromFav = async (flight) => {
         try {
-            const response = await fetch(`http://localhost:3000/api/flights/wishlist/${flight._id}`,{
+            const response = await fetch(`/api/flights/wishlist/${flight._id}`,{
                 method: 'DELETE'
             });
             const deletedFlight = await response.json();
@@ -190,7 +190,7 @@ function App() {
         }
         console.log(_flight);
         try {
-            const response = await fetch('http://localhost:3000/api/flights/order', {
+            const response = await fetch('/api/flights/order', {
                 method: 'post',
                 headers: {
                 'Content-Type': 'application/json'

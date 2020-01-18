@@ -8,7 +8,7 @@ const Wishlist = ({removeFlightFromFav, handleOrder}) => {
             try {
                 const flightsIds = localStorage.hasOwnProperty('flights') ? localStorage['flights'].split(',') : [];
                 if(flightsIds.length > 0){
-                    const url = `http://localhost:3000/api/flights/?flights=${localStorage['flights']}`;
+                    const url = `/api/flights/?flights=${localStorage['flights']}`;
                     const response = await fetch(url);
                     const flights = await response.json();
                     console.log(flights);

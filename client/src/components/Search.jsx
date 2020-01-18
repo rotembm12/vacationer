@@ -13,7 +13,7 @@ const Search = ({airports, handleFlights}) => {
             url
         }
         try {
-            const response = await fetch(`http://localhost:3000/api/flights/outerapi`,{
+            const response = await fetch(`/api/flights/outerapi`,{
                 method: 'post',
                 mode: 'cors',
                 cache: 'no-cache',
