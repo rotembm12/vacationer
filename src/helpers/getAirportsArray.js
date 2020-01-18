@@ -32,7 +32,7 @@ const insertAirports = async () => {
    });
    try {
       filteredAirports.forEach(async airport => {
-         const response = await fetch(`http://localhost:3000/api/airports`, {
+         const response = await fetch(`/api/airports`, {
             method: 'POST',
             mode: 'cors', // no-cors, *cors, same-origin
             cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
